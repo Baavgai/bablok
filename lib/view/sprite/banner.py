@@ -10,10 +10,11 @@ from ...state import GameState
 
 KEY_COLOR = (0, 0, 128)
 
+
 class Banner(GameSprite):
     def __init__(self):
         GameSprite.__init__(self, size=DISPLAY_SIZE)
-        self.font = pygame.font.Font("freesansbold.ttf", 32)
+        self.font = pygame.font.Font(TYPE_FACE, 32)
         # self.font = pygame.font.Font(None, 24)
         self.last_state = None
         self.image.set_colorkey(KEY_COLOR)

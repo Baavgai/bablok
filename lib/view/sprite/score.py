@@ -9,10 +9,10 @@ from .brick import BRICK_IMAGES, to_screen_pos
 
 class Score(Msg):
     def __init__(self):
-        Msg.__init__(self, 10)
+        Msg.__init__(self, 10, Msg.ALIGN_RIGHT)
 
     def _get_message(self, state):
-        return str(state.score)
+        return f'{state.score} '
 
 
 """

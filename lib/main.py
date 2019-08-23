@@ -1,15 +1,15 @@
+# from .view import user_display, user_input
 from .view import user_display, user_input
-from .state import GameState
-
+# from .state import GameState
+from .controller import Controller
 
 def main():
-    display = user_display.Display()
-    game_state = GameState()
-    while game_state.running_state != GameState.RS_DONE:
-        display.update(game_state)
-        game_state = user_input.update(game_state)
-        display.tick(game_state)
-    display.close()
+    controller = Controller(user_display.Display(), user_input.update)
+    while not controller.is_done():
+        controller.update_display()
+        controller.load_user_input()
+        controller.tick()
+    controller.close()
 
 
 if __name__ == "__main__":

@@ -5,118 +5,124 @@ from .live_block import pick_block
 from .constants import WELL_WIDTH, WELL_HEIGHT, BLOCK_NONE
 
 
-def crash_block(state, block):
-    for (x, y) in block.shape():
-        state.grid[y][x] = block.block_id
-    state.live_block = None
+class Controller(object):
+    def __init__(self, display, user_input):
+        self.display = display
+        self.user_input = user_input
+        self.state = GameState()
 
+    def is_done(self):
+        return self.state.running_state == GameState.RS_DONE
 
-def winning_rows(state):
-    d = {}
-    for ((_, y), _) in state.active_grid(False):
-        if y in d:
-            d[y] += 1
-        else:
-            d[y] = 1
-    return [y for (y, count) in d.items() if count == WELL_WIDTH]
+    def is_playing(self):
+        return self.state.running_state == GameState.RS_PLAYING
 
+    def is_paused(self):
+        return self.state.running_state == GameState.RS_PAUSED
 
-def remove_winning_rows(state):
-    rows = winning_rows(state)
-    ct = len(rows)
-    if ct > 0:
-        xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)]
-              for _ in range(len(rows))]
-        xs.extend(row for (i, row) in enumerate(state.grid) if i not in rows)
-        state.grid = xs
-        state.score += [0, 100, 300, 500, 800][ct] * state.level
+    def is_game_over(self):
+        return self.state.running_state == GameState.RS_GAME_OVER
 
+    def update_display(self):
+        self.display.update(self.state)
 
-def can_move(state, block):
-    g_blocks = [pt for (pt, _) in state.active_grid(include_live=False)]
-    for (x, y) in block.shape():
-        if (x, y) in g_blocks:
-            return False
-        if x < 0 or x >= WELL_WIDTH:
-            return False
-        elif y >= WELL_HEIGHT:
-            return False
-    return True
+    def load_user_input(self):
+        self.user_input(self)
 
+    def tick(self):
+        self.display.tick(self.state)
 
-def move_down(state):
-    if state.live_block:
-        block = state.live_block.move((0, 1))
-        if can_move(state, block):
-            state.live_block = block
-            state.score += 1
-        else:
-            crash_block(state, state.live_block)
-    # state.move_down = False
+    def close(self):
+        self.display.close()
 
+    def end_game(self):
+        self.state.running_state = GameState.RS_DONE
 
-def __move_delta(state, delta):
-    block = state.live_block.move(delta)
-    if can_move(state, block):
-        state.live_block = block
-    # state.entry = GameState.E_NONE
+    def pause_game(self):
+        self.state.running_state = GameState.RS_PAUSED
 
+    def unpause_game(self):
+        self.state.running_state = GameState.RS_PLAYING
 
-def move_left(state):
-    __move_delta(state, (-1, 0))
+    def restart_game(self):
+        self.state.restart()
 
+    def __can_move(self, block):
+        g_blocks = [pt for (pt, _) in self.state.active_grid(include_live=False)]
+        for (x, y) in block.shape():
+            if (x, y) in g_blocks:
+                return False
+            if x < 0 or x >= WELL_WIDTH:
+                return False
+            elif y >= WELL_HEIGHT:
+                return False
+        return True
 
-def move_right(state):
-    __move_delta(state, (1, 0))
+    def __move_delta(self, delta):
+        block = self.state.live_block.move(delta)
+        if self.__can_move(block):
+            self.state.live_block = block
 
+    def move_left(self):
+        self.__move_delta((-1, 0))
 
-def rotate(state):
-    block = state.live_block.rotate()
-    if can_move(state, block):
-        state.live_block = block
-    # state.entry = GameState.E_NONE
+    def move_right(self):
+        self.__move_delta((1, 0))
 
+    def rotate(self):
+        block = self.state.live_block.rotate()
+        if self.__can_move(block):
+            self.state.live_block = block
 
-def drop(state):
-    block = state.live_block
-    next_block = block.move((0, 1))
-    while can_move(state, next_block):
-        state.score += 2
-        block = next_block
+    def __crash_block(self, block):
+        for (x, y) in block.shape():
+            self.state.grid[y][x] = block.block_id
+        self.state.live_block = None
+
+    def drop(self):
+        block = self.state.live_block
         next_block = block.move((0, 1))
-    crash_block(state, block)
-    # state.entry = GameState.E_NONE
+        while self.__can_move(next_block):
+            self.state.score += 2
+            block = next_block
+            next_block = block.move((0, 1))
+        self.__crash_block(block)
+        # state.entry = GameState.E_NONE
 
+    def move_down(self):
+        if self.state.live_block:
+            block = self.state.live_block.move((0, 1))
+            if self.__can_move(block):
+                self.state.live_block = block
+                self.state.score += 1
+            else:
+                self.__crash_block(self.state.live_block)
 
-def block_eliminate(state):
-    # rows = state.winning_rows()
-    remove_winning_rows(state)
+    def __remove_winning_rows(self):
+        d = {}
+        for ((_, y), _) in self.state.active_grid(False):
+            if y in d:
+                d[y] += 1
+            else:
+                d[y] = 1
+        rows = [y for (y, count) in d.items() if count == WELL_WIDTH]
+        ct = len(rows)
+        if ct > 0:
+            xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)]
+                  for _ in range(len(rows))]
+            xs.extend(row for (i, row) in enumerate(self.state.grid) if i not in rows)
+            self.state.grid = xs
+            self.state.score += [0, 100, 300, 500, 800][ct] * self.state.level
 
+    def __spawn_block(self):
+        self.__remove_winning_rows()
+        self.state.live_block = self.state.next_block
+        self.state.next_block = pick_block()
+        self.state.live_block = self.state.live_block.move((0, 1))
+        if not self.__can_move(self.state.live_block):
+            self.state.running_state = GameState.RS_GAME_OVER
 
-def spawn_block(state):
-    block_eliminate(state)
-    state.live_block = state.next_block
-    state.next_block = pick_block()
-    state.live_block = state.live_block.move((0, 1))
-    if not can_move(state, state.live_block):
-        state.running_state = GameState.RS_GAME_OVER
-
-
-def end_game(state):
-    state.running_state = GameState.RS_DONE
-
-def pause_game(state):
-    state.running_state = GameState.RS_PAUSED
-
-def unpause_game(state):
-    state.running_state = GameState.RS_PLAYING
-
-def restart_game(state):
-    state.restart()
-
-
-def finalize(state):
-    if state.running_state == GameState.RS_PLAYING:
-        if not state.live_block:
-            spawn_block(state)
-    return state
+    def finalize(self):
+        if self.state.running_state == GameState.RS_PLAYING:
+            if not self.state.live_block:
+                self.__spawn_block()

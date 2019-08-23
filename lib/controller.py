@@ -45,7 +45,7 @@ class Controller(object):
         self.state.running_state = GameState.RS_PLAYING
 
     def restart_game(self):
-        self.state.restart()
+        self.state = GameState()
 
     def __can_move(self, block):
         g_blocks = [pt for (pt, _) in self.state.active_grid(include_live=False)]
@@ -71,9 +71,10 @@ class Controller(object):
         self.__move_delta((1, 0))
 
     def rotate(self):
-        block = self.state.live_block.rotate()
-        if self.__can_move(block):
-            self.state.live_block = block
+        if self.state.live_block:
+            block = self.state.live_block.rotate()
+            if self.__can_move(block):
+                self.state.live_block = block
 
     def __crash_block(self, block):
         for (x, y) in block.shape():
@@ -96,8 +97,10 @@ class Controller(object):
             if self.__can_move(block):
                 self.state.live_block = block
                 self.state.score += 1
+                return True
             else:
                 self.__crash_block(self.state.live_block)
+        return False
 
     def __remove_winning_rows(self):
         d = {}
@@ -127,7 +130,22 @@ class Controller(object):
         if self.state.running_state == GameState.RS_PLAYING:
             if not self.state.live_block:
                 self.__spawn_block()
+                self.state.speed_down = False
+            elif self.state.speed_down:
+                self.speed_down()
 
     def level_up(self):
         if self.state.level < 9:
             self.state.level += 1
+
+    def speed_down(self):
+        if self.move_down():
+            self.state.speed_down = True
+            self.state.score += 1
+        else:
+            self.state.speed_down = False
+
+
+    def end_speed_down(self):
+        self.state.speed_down = False
+

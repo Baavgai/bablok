@@ -23,11 +23,13 @@ def winning_rows(state):
 
 def remove_winning_rows(state):
     rows = winning_rows(state)
-    if not rows == []:
+    ct = len(rows)
+    if ct > 0:
         xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)]
               for _ in range(len(rows))]
         xs.extend(row for (i, row) in enumerate(state.grid) if i not in rows)
         state.grid = xs
+        state.score += [0, 100, 300, 500, 800][ct] * state.level
 
 
 def can_move(state, block):
@@ -47,6 +49,7 @@ def move_down(state):
         block = state.live_block.move((0, 1))
         if can_move(state, block):
             state.live_block = block
+            state.score += 1
         else:
             crash_block(state, state.live_block)
     # state.move_down = False
@@ -78,6 +81,7 @@ def drop(state):
     block = state.live_block
     next_block = block.move((0, 1))
     while can_move(state, next_block):
+        state.score += 2
         block = next_block
         next_block = block.move((0, 1))
     crash_block(state, block)
@@ -101,6 +105,11 @@ def spawn_block(state):
 def end_game(state):
     state.running_state = GameState.RS_DONE
 
+def pause_game(state):
+    state.running_state = GameState.RS_PAUSED
+
+def unpause_game(state):
+    state.running_state = GameState.RS_PLAYING
 
 def restart_game(state):
     state.restart()

@@ -14,6 +14,11 @@ def update(state):
                 if state.running_state == GameState.RS_GAME_OVER:
                     if event.key == pygame.K_ESCAPE:
                         controller.restart_game(state)
+                elif state.running_state == GameState.RS_PAUSED:
+                    if event.key == pygame.K_ESCAPE:
+                        controller.unpause_game(state)
+                elif event.key == pygame.K_ESCAPE:
+                    controller.pause_game(state)
                 elif event.key == pygame.K_LEFT:
                     controller.move_left(state)
                 elif event.key == pygame.K_RIGHT:

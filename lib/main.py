@@ -1,14 +1,14 @@
-from .view import display, user_input
+from .view import user_display, user_input
 from .state import GameState
 
 
 def main():
-    display_state = display.init()
+    display = user_display.Display()
     game_state = GameState()
     while game_state.running_state != GameState.RS_DONE:
-        display.update(display_state, game_state)
+        display.update(game_state)
         game_state = user_input.update(game_state)
-        display.tick(display_state, game_state)
+        display.tick(game_state)
     display.close()
 
 

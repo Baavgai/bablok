@@ -3,6 +3,16 @@ from ..state import GameState
 from .constants import EVENT_TICK
 # from .. import controller
 
+KB_LOOKUP = {
+    pygame.K_KP_PLUS: lambda c: c.level_up(),
+    pygame.K_LEFT: lambda c: c.move_left(),
+    pygame.K_ESCAPE: lambda c: c.pause_game(),
+    pygame.K_RIGHT: lambda c: c.move_right(),
+    pygame.K_SPACE: lambda c: c.drop(),
+    pygame.K_UP: lambda c: c.rotate(),
+    pygame.K_PLUS: lambda c: c.level_up(),
+}
+
 
 def update(controller):
     if not controller.is_done():
@@ -16,16 +26,8 @@ def update(controller):
                 elif controller.is_paused():
                     if event.key == pygame.K_ESCAPE:
                         controller.unpause_game()
-                elif event.key == pygame.K_ESCAPE:
-                    controller.pause_game()
-                elif event.key == pygame.K_LEFT:
-                    controller.move_left()
-                elif event.key == pygame.K_RIGHT:
-                    controller.move_right()
-                elif event.key == pygame.K_SPACE:
-                    controller.drop()
-                elif event.key == pygame.K_UP:
-                    controller.rotate()
+                elif event.key in KB_LOOKUP:
+                    KB_LOOKUP[event.key](controller)
             # elif event.type == pygame.KEYUP and not state.game_over:                # if event.key == pygame.K_UP or event.key == pygame.K_DOWN:                    state.entry = GameState.E_NONE
             elif event.type == EVENT_TICK and controller.is_playing():
                 controller.move_down()

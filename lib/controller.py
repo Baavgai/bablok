@@ -59,9 +59,10 @@ class Controller(object):
         return True
 
     def __move_delta(self, delta):
-        block = self.state.live_block.move(delta)
-        if self.__can_move(block):
-            self.state.live_block = block
+        if self.state.live_block:
+            block = self.state.live_block.move(delta)
+            if self.__can_move(block):
+                self.state.live_block = block
 
     def move_left(self):
         self.__move_delta((-1, 0))
@@ -126,3 +127,7 @@ class Controller(object):
         if self.state.running_state == GameState.RS_PLAYING:
             if not self.state.live_block:
                 self.__spawn_block()
+
+    def level_up(self):
+        if self.state.level < 9:
+            self.state.level += 1

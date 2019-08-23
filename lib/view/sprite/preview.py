@@ -11,7 +11,7 @@ class Preview(GameSprite):
     def __init__(self):
         GameSprite.__init__(self, size=(5 * BLOCK_SIZE, 4 * BLOCK_SIZE))
         # x, y = to_screen_pos((WELL_WIDTH + LEFT_WIDTH + 1, WELL_HEIGHT - 5))
-        x, y = to_screen_pos((WELL_WIDTH + LEFT_WIDTH + 1, 2))
+        x, y = to_screen_pos((WELL_WIDTH + LEFT_WIDTH + 1, 8))
         self.rect.x = x
         self.rect.y = y
 

@@ -26,7 +26,8 @@ class Display(object):
 
     def update(self, state):
         if not state.level == self.last_level:
-            pygame.time.set_timer(EVENT_TICK, 800)
+            pygame.time.set_timer(EVENT_TICK, [None, 800, 700, 600, 500, 400, 300, 150, 100, 75][state.level])
+            # (11 - state.level) * 100)
             self.last_level = state.level
         for x in self.sprites:
             x.refresh_state(state)

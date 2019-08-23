@@ -9,7 +9,7 @@ from .brick import BRICK_IMAGES, to_screen_pos
 
 class Score(Msg):
     def __init__(self):
-        Msg.__init__(self, 10, Msg.ALIGN_RIGHT)
+        Msg.__init__(self, 5, Msg.ALIGN_RIGHT)
 
     def _get_message(self, state):
         return f'{state.score} '

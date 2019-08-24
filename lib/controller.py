@@ -149,3 +149,5 @@ class Controller(object):
     def end_speed_down(self):
         self.state.speed_down = False
 
+    def on_resize(self, size):
+        self.display.on_resize(size)

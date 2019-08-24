@@ -4,7 +4,7 @@ from ..constants import *
 from ..colors import COLOR_BG, COLOR_BANNER_FONT, COLOR_BANNER_SUBFONT
 from ...constants import WELL_HEIGHT, WELL_WIDTH, BLOCK_I, BLOCK_O
 from .game_sprite import GameSprite
-from .brick import to_screen_pos
+from ..util import to_screen_pos
 from ...state import GameState
 
 
@@ -12,19 +12,17 @@ KEY_COLOR = (0, 0, 128)
 
 
 class Banner(GameSprite):
-    def __init__(self):
-        GameSprite.__init__(self, size=DISPLAY_SIZE)
+    def __init__(self, display_size):
+        GameSprite.__init__(self, size=display_size)
+        print("Banner", display_size)
         self.font = pygame.font.Font(TYPE_FACE, 32)
         self.sub_font = pygame.font.Font(TYPE_FACE, 24)
-        # self.font = pygame.font.Font(None, 24)
         self.last_state = None
         self.image.set_colorkey(KEY_COLOR)
         self.__clear()
 
     def __clear(self):
         self.image.fill(KEY_COLOR)
-
-        # msg = self._get_message(state)         type(x) == str
 
     def __write_messages(self, messages):
         self.__clear()
@@ -40,16 +38,11 @@ class Banner(GameSprite):
         for txt in texts:
             txt_img.blit(txt, (txt_img.get_width() // 2 - txt.get_width() // 2, y))
             y += gutter + txt.get_height()
-        # txt_img.blit(texts[0], (txt_img.get_width() // 2 - texts[0].get_width() // 2, gutter))
-        # r = text.get_rect(center=(self.rect.centerx, self.rect.centery // 2))
-        # self.image.blit(text, r)
+        pos = (self.rect.centerx - txt_img.get_width() // 2, self.rect.centery // 2)
+        print(pos)
+        self.image.blit(txt_img, pos)
 
-        # r = text.get_rect(center=(self.rect.centerx, self.rect.centery // 2))
-        # self.image.blit(text, r)
-        # r = self.__write_first_message(messages[0])
-        self.image.blit(txt_img, (self.rect.centerx - txt_img.get_width() // 2, self.rect.centery // 2))
-
-    def refresh_state(self, state):
+    def update(self, state):
         if not state.running_state == self.last_state:
             self.last_state = state.running_state
             if state.running_state == GameState.RS_PAUSED:

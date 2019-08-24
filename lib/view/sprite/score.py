@@ -4,12 +4,12 @@ from ..constants import *
 from ..colors import COLOR_BG, COLOR_FONT
 from ...constants import WELL_HEIGHT, WELL_WIDTH, BLOCK_I, BLOCK_O
 from .msg import Msg
-from .brick import BRICK_IMAGES, to_screen_pos
+from ..util import to_screen_pos
 
 
 class Score(Msg):
-    def __init__(self):
-        Msg.__init__(self, 5, Msg.ALIGN_RIGHT)
+    def __init__(self, brick_size):
+        Msg.__init__(self, brick_size, 5, Msg.ALIGN_RIGHT)
 
     def _get_message(self, state):
         return f'{state.score} '

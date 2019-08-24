@@ -14,7 +14,7 @@ KEY_COLOR = (0, 0, 128)
 class Banner(GameSprite):
     def __init__(self, display_size):
         GameSprite.__init__(self, size=display_size)
-        print("Banner", display_size)
+        # print("Banner", display_size)
         self.font = pygame.font.Font(TYPE_FACE, 32)
         self.sub_font = pygame.font.Font(TYPE_FACE, 24)
         self.last_state = None

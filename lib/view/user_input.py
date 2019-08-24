@@ -20,6 +20,7 @@ def update(controller):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 controller.end_game()
+            # elif event.type == pygame.MOUSEMOTION:                print(event.pos)
             elif event.type == pygame.VIDEORESIZE:
                 controller.on_resize(event.size)
             elif event.type == pygame.KEYDOWN:

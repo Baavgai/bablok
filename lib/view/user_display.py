@@ -16,25 +16,23 @@ def size_from_brick_size(brick_size):
     return FULL_WIDTH * brick_size, FULL_HEIGHT * brick_size
 
 # pygame.set_icon(Surface)
+
+
 class Display(object):
     def __init__(self):
         self.clock = pygame.time.Clock()
-        
+
         pygame.init()
 
         self.last_level = 0
         self.sprites = pygame.sprite.Group()
 
-        # optimal brick
-        info = pygame.display.Info()
-        monitor_w, monitor_h = info.current_w, info.current_h
-        brick_size = min(monitor_w, monitor_h) // (max(FULL_WIDTH, FULL_HEIGHT) + 4)
-        screen_x, screen_y = size_from_brick_size(brick_size)
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (monitor_w // 2 - screen_x // 2, brick_size * 2)
+        # detector blows, going with fixed size to start
+        # info = pygame.display.Info()
+        brick_size = 30
 
-        self.screen = pygame.display.set_mode((screen_x, screen_y), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(size_from_brick_size(brick_size), pygame.RESIZABLE)
         # we're always getting a resize hit back when we start up
-
 
     def __resize(self):
         self.brick_images = util.generate_brick_images(self.brick_size)
@@ -51,9 +49,9 @@ class Display(object):
     def on_resize(self, size):
         screen_x, screen_y = size
         self.brick_size = min(screen_x // FULL_WIDTH, screen_y // FULL_HEIGHT)
+        # print(size, self.brick_size, size_from_brick_size(self.brick_size))
         self.screen = pygame.display.set_mode(size_from_brick_size(self.brick_size), pygame.RESIZABLE)
         self.__resize()
-
 
     def update(self, state):
         if not state.level == self.last_level:

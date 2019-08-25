@@ -8,6 +8,12 @@ from ..util import to_screen_pos, banner_border_image
 from ...state import GameState
 
 
+# import locale
+# locale.setlocale(locale.LC_ALL, '')
+#            code = locale.getpreferredencoding()
+# pygame sucks at this ARROWS = '←→↑↓'
+
+
 KEY_COLOR = (0, 0, 128)
 
 
@@ -16,6 +22,7 @@ class Banner(GameSprite):
         GameSprite.__init__(self, size=display_size)
         self.font = pygame.font.Font(TYPE_FACE, brick_size + brick_size // 2)
         self.sub_font = pygame.font.Font(TYPE_FACE, brick_size)
+        # self.sub_font = pygame.font.SysFont(None, brick_size)
         self.last_state = None
         self.image.set_colorkey(KEY_COLOR)
         self.__clear()
@@ -44,9 +51,20 @@ class Banner(GameSprite):
     def update(self, state):
         if not state.running_state == self.last_state:
             self.last_state = state.running_state
+
+
             if state.running_state == GameState.RS_PAUSED:
-                self.__write_messages(["PAUSED", "Press ESC to resume"])
+                self.__write_messages([
+                    "PAUSED",
+                    "Press ESC to resume",
+                    "Controls:",
+                    "Move - Left and Right",
+                    "Rotate - Up",
+                    "Speed Drop - Down",
+                    "Full Drop - Space",
+                    "Skip Level - Kbd +"
+                ])
             elif state.running_state == GameState.RS_GAME_OVER:
-                self.__write_messages(["GAME OVER", "Press ESC to play again"])
+                self.__write_messages(["GAME OVER", "Play again? (Y/N)"])
             else:
                 self.__clear()

@@ -15,6 +15,7 @@ class GameState(object):
         self.level = 1
         self.lines_until_next_level = 10
         self.speed_down = False
+        self.pending_row_removal = (None, [])
 
     def active_grid(self, include_live=True):
         xs = [((x, y), self.grid[y][x]) for y in range(WELL_HEIGHT) for x in range(WELL_WIDTH) if self.grid[y][x] != BLOCK_NONE]

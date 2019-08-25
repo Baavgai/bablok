@@ -10,7 +10,9 @@ KB_LOOKUP = {
     GameState.RS_DONE: {
     },
     GameState.RS_GAME_OVER: {
-        pygame.K_ESCAPE: lambda c: c.restart_game()
+        pygame.K_ESCAPE: lambda c: c.restart_game(),
+        pygame.K_y: lambda c: c.restart_game(),
+        pygame.K_n: lambda c: c.end_game(),
     },
     GameState.RS_PLAYING: {
         pygame.K_KP_PLUS: lambda c: c.level_up(),

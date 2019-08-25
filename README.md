@@ -12,5 +12,3 @@ Seven seems reasonable, eight seems rough, but doable, nine will kill you off on
 ## TODO
 
  * Welcome splash.
- * Instructions on screen.
- * Visually show line removal.

@@ -2,7 +2,7 @@ import pygame
 import random
 from .state import GameState
 from .live_block import pick_block
-from .constants import WELL_WIDTH, WELL_HEIGHT, BLOCK_NONE
+from .constants import WELL_WIDTH, WELL_HEIGHT, BLOCK_NONE, REMOVAL_TICKS
 
 
 class Controller(object):
@@ -85,7 +85,6 @@ class Controller(object):
             block = next_block
             next_block = block.move((0, 1))
         self.__crash_block(block)
-        # state.entry = GameState.E_NONE
 
     def move_down(self):
         if self.state.live_block:
@@ -107,25 +106,40 @@ class Controller(object):
                 d[y] = 1
         return [y for (y, count) in d.items() if count == WELL_WIDTH]
 
+    def __clear_pending(self):
+        self.state.pending_row_removal = (None, [])
+
+    def __has_pending(self):
+        return self.state.pending_row_removal[0] is not None
+
     def __remove_winning_rows(self):
-        rows = self.__winning_rows()
-        ct = len(rows)
-        if ct > 0:
-            xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)] for _ in range(len(rows))]
-            xs.extend(row for (i, row) in enumerate(self.state.grid) if i not in rows)
-            self.state.grid = xs
-            self.state.score += [0, 100, 300, 500, 800][ct] * self.state.level
-            self.state.lines_until_next_level -= ct
-            if self.state.lines_until_next_level < 1:
-                self.level_up()
+        if not self.__has_pending():
+            rows = self.__winning_rows()
+            if not rows == []:
+                self.state.pending_row_removal = (REMOVAL_TICKS, rows)
+        else:
+            ticks, rows = self.state.pending_row_removal
+            if ticks > 0:
+                self.state.pending_row_removal = (ticks - 1, rows)
+            else:
+                ct = len(rows)
+                xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)] for _ in range(len(rows))]
+                xs.extend(row for (i, row) in enumerate(self.state.grid) if i not in rows)
+                self.state.grid = xs
+                self.state.score += [0, 100, 300, 500, 800][ct] * self.state.level
+                self.state.lines_until_next_level -= ct
+                if self.state.lines_until_next_level < 1:
+                    self.level_up()
+                self.__clear_pending()
 
     def __spawn_block(self):
         self.__remove_winning_rows()
-        self.state.live_block = self.state.next_block
-        self.state.next_block = pick_block()
-        self.state.live_block = self.state.live_block.move((0, 1))
-        if not self.__can_move(self.state.live_block):
-            self.state.running_state = GameState.RS_GAME_OVER
+        if not self.__has_pending():
+            self.state.live_block = self.state.next_block
+            self.state.next_block = pick_block()
+            self.state.live_block = self.state.live_block.move((0, 1))
+            if not self.__can_move(self.state.live_block):
+                self.state.running_state = GameState.RS_GAME_OVER
 
     def finalize(self):
         if self.state.running_state == GameState.RS_PLAYING:

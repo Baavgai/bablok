@@ -44,18 +44,17 @@ class Display(object):
         self.sprites.add(Preview(self.brick_size, self.brick_images))
         self.sprites.add(Score(self.brick_size))
         self.sprites.add(Level(self.brick_size))
-        self.sprites.add(Banner(size))
+        self.sprites.add(Banner(size, self.brick_size))
 
     def on_resize(self, size):
         screen_x, screen_y = size
         self.brick_size = min(screen_x // FULL_WIDTH, screen_y // FULL_HEIGHT)
-        # print(size, self.brick_size, size_from_brick_size(self.brick_size))
         self.screen = pygame.display.set_mode(size_from_brick_size(self.brick_size), pygame.RESIZABLE)
         self.__resize()
 
     def update(self, state):
         if not state.level == self.last_level:
-            pygame.time.set_timer(EVENT_TICK, [None, 800, 700, 600, 500, 400, 300, 150, 100, 75][state.level])
+            pygame.time.set_timer(EVENT_TICK, [None, 800, 700, 600, 500, 400, 300, 200, 100, 75][state.level])
             # (11 - state.level) * 100)
             self.last_level = state.level
         # for x in self.sprites:            x.refresh_state(state)

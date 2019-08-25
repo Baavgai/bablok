@@ -11,17 +11,13 @@ class Controller(object):
         self.user_input = user_input
         self.state = GameState()
 
-    def is_done(self):
-        return self.state.running_state == GameState.RS_DONE
+    def running_state(self):
+        return self.state.running_state
 
-    def is_playing(self):
-        return self.state.running_state == GameState.RS_PLAYING
-
-    def is_paused(self):
-        return self.state.running_state == GameState.RS_PAUSED
-
-    def is_game_over(self):
-        return self.state.running_state == GameState.RS_GAME_OVER
+    # def is_done(self):        return self.state.running_state == GameState.RS_DONE
+    # def is_playing(self):        return self.state.running_state == GameState.RS_PLAYING
+    # def is_paused(self):        return self.state.running_state == GameState.RS_PAUSED
+    # def is_game_over(self):        return self.state.running_state == GameState.RS_GAME_OVER
 
     def update_display(self):
         self.display.update(self.state)
@@ -102,21 +98,26 @@ class Controller(object):
                 self.__crash_block(self.state.live_block)
         return False
 
-    def __remove_winning_rows(self):
+    def __winning_rows(self):
         d = {}
         for ((_, y), _) in self.state.active_grid(False):
             if y in d:
                 d[y] += 1
             else:
                 d[y] = 1
-        rows = [y for (y, count) in d.items() if count == WELL_WIDTH]
+        return [y for (y, count) in d.items() if count == WELL_WIDTH]
+
+    def __remove_winning_rows(self):
+        rows = self.__winning_rows()
         ct = len(rows)
         if ct > 0:
-            xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)]
-                  for _ in range(len(rows))]
+            xs = [[BLOCK_NONE for _ in range(WELL_WIDTH)] for _ in range(len(rows))]
             xs.extend(row for (i, row) in enumerate(self.state.grid) if i not in rows)
             self.state.grid = xs
             self.state.score += [0, 100, 300, 500, 800][ct] * self.state.level
+            self.state.lines_until_next_level -= ct
+            if self.state.lines_until_next_level < 1:
+                self.level_up()
 
     def __spawn_block(self):
         self.__remove_winning_rows()
@@ -135,8 +136,9 @@ class Controller(object):
                 self.speed_down()
 
     def level_up(self):
-        if self.state.level < 9:
+        if self.state.level < GameState.MAX_LEVEL:
             self.state.level += 1
+            self.state.lines_until_next_level = self.state.level * 10
 
     def speed_down(self):
         if self.move_down():
@@ -144,7 +146,6 @@ class Controller(object):
             self.state.score += 1
         else:
             self.state.speed_down = False
-
 
     def end_speed_down(self):
         self.state.speed_down = False

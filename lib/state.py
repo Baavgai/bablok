@@ -4,6 +4,7 @@ from .live_block import pick_block
 
 class GameState(object):
     RS_PLAYING, RS_DONE, RS_GAME_OVER, RS_PAUSED = range(4)
+    MAX_LEVEL = 9
 
     def __init__(self):
         self.running_state = GameState.RS_PLAYING
@@ -12,6 +13,7 @@ class GameState(object):
         self.next_block = pick_block()
         self.score = 0
         self.level = 1
+        self.lines_until_next_level = 10
         self.speed_down = False
 
     def active_grid(self, include_live=True):

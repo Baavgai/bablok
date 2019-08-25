@@ -11,3 +11,5 @@ BRICK_BORDER = 7
 TYPE_FACE = "freesansbold.ttf"
 
 EVENT_TICK = pygame.USEREVENT + 0
+
+LEVEL_TICKS = [None, 800, 700, 600, 500, 400, 300, 175, 125, 75]

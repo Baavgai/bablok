@@ -3,11 +3,11 @@ from .live_block import pick_block
 
 
 class GameState(object):
-    RS_PLAYING, RS_DONE, RS_GAME_OVER, RS_PAUSED = range(4)
+    RS_WELCOME, RS_PLAYING, RS_DONE, RS_GAME_OVER, RS_PAUSED = range(5)
     MAX_LEVEL = 9
 
     def __init__(self):
-        self.running_state = GameState.RS_PLAYING
+        self.running_state = GameState.RS_WELCOME
         self.grid = [[BLOCK_NONE for _ in range(WELL_WIDTH)] for _ in range(WELL_HEIGHT)]
         self.live_block = None
         self.next_block = pick_block()

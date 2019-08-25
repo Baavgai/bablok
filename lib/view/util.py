@@ -5,6 +5,10 @@ from .constants import *
 from .colors import *
 
 
+def size_from_brick_size(brick_size):
+    return FULL_WIDTH * brick_size, FULL_HEIGHT * brick_size
+
+
 def to_screen_pos(brick_size, pt):
     x, y = pt
     return x * brick_size, y * brick_size

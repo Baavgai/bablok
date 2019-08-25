@@ -35,8 +35,6 @@ class LiveBlock(object):
     def shape(self):
         return self.shape_raw_shift(self.pos)
 
-# BLOCK_NONE, BLOCK_I, BLOCK_O, BLOCK_T, BLOCK_S, BLOCK_Z, BLOCK_J, BLOCK_L, BLOCK_COUNT = range(9)
-
 
 PATTERNS = [
     #  BLOCK_I
@@ -87,5 +85,3 @@ PATTERNS = [
 def pick_block():
     block_id = random.randint(1, BLOCK_COUNT - 1)
     return LiveBlock(block_id, PATTERNS[block_id - 1])
-
-# def pick_block():    return LiveBlock(BLOCK_I, PATTERNS[BLOCK_I - 1])

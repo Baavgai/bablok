@@ -14,11 +14,6 @@ class Controller(object):
     def running_state(self):
         return self.state.running_state
 
-    # def is_done(self):        return self.state.running_state == GameState.RS_DONE
-    # def is_playing(self):        return self.state.running_state == GameState.RS_PLAYING
-    # def is_paused(self):        return self.state.running_state == GameState.RS_PAUSED
-    # def is_game_over(self):        return self.state.running_state == GameState.RS_GAME_OVER
-
     def update_display(self):
         self.display.update(self.state)
 
@@ -31,6 +26,9 @@ class Controller(object):
     def close(self):
         self.display.close()
 
+    def start_game(self):
+        self.state.running_state = GameState.RS_PLAYING
+
     def end_game(self):
         self.state.running_state = GameState.RS_DONE
 
@@ -42,6 +40,7 @@ class Controller(object):
 
     def restart_game(self):
         self.state = GameState()
+        self.start_game()
 
     def __can_move(self, block):
         g_blocks = [pt for (pt, _) in self.state.active_grid(include_live=False)]
@@ -78,16 +77,17 @@ class Controller(object):
         self.state.live_block = None
 
     def drop(self):
-        block = self.state.live_block
-        next_block = block.move((0, 1))
-        while self.__can_move(next_block):
-            self.state.score += 2
-            block = next_block
-            next_block = block.move((0, 1))
-        self.__crash_block(block)
-
-    def move_down(self):
         if self.state.live_block:
+            block = self.state.live_block
+            next_block = block.move((0, 1))
+            while self.__can_move(next_block):
+                self.state.score += 2
+                block = next_block
+                next_block = block.move((0, 1))
+            self.__crash_block(block)
+
+    def handle_tick(self):
+        if self.state.live_block and self.state.running_state == GameState.RS_PLAYING:
             block = self.state.live_block.move((0, 1))
             if self.__can_move(block):
                 self.state.live_block = block
@@ -155,7 +155,7 @@ class Controller(object):
             self.state.lines_until_next_level = self.state.level * 10
 
     def speed_down(self):
-        if self.move_down():
+        if self.handle_tick():
             self.state.speed_down = True
             self.state.score += 1
         else:

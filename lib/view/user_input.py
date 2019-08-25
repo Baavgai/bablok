@@ -7,6 +7,8 @@ KB_LOOKUP = {
     GameState.RS_PAUSED: {
         pygame.K_ESCAPE: lambda c: c.unpause_game()
     },
+    GameState.RS_WELCOME: {
+    },
     GameState.RS_DONE: {
     },
     GameState.RS_GAME_OVER: {
@@ -27,6 +29,15 @@ KB_LOOKUP = {
 }
 
 
+def __do_keydown(rs, key, controller):
+    if rs == GameState.RS_WELCOME:
+        controller.start_game()
+    else:
+        lu = KB_LOOKUP[rs]
+        if key in lu:
+            lu[key](controller)
+
+
 def update(controller):
     rs = controller.running_state()
     if not rs == GameState.RS_DONE:
@@ -36,12 +47,9 @@ def update(controller):
             elif event.type == pygame.VIDEORESIZE:
                 controller.on_resize(event.size)
             elif event.type == pygame.KEYDOWN:
-                lu = KB_LOOKUP[rs]
-                if event.key in lu:
-                    lu[event.key](controller)
-            # elif event.type == pygame.KEYUP and not state.game_over:                # if event.key == pygame.K_UP or event.key == pygame.K_DOWN:                    state.entry = GameState.E_NONE
-            elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN and not rs == GameState.RS_GAME_OVER:
+                __do_keydown(rs, event.key, controller)
+            elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
                 controller.end_speed_down()
-            elif event.type == EVENT_TICK and rs == GameState.RS_PLAYING:
-                controller.move_down()
+            elif event.type == EVENT_TICK:
+                controller.handle_tick()
     controller.finalize()
